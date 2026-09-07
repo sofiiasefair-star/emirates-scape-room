@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Emirates — The Lost Boarding Pass</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#06121d;color:#fff;min-height:100vh}
+.screen{display:none;min-height:100vh;padding:28px;background:radial-gradient(circle at 70% 20%,#183b4c 0,#071722 45%,#030a10 100%)}
+.screen.active{display:flex;align-items:center;justify-content:center}
+.card{width:min(1050px,96vw);background:rgba(4,15,25,.93);border:1px solid #c8a44d;border-radius:22px;padding:34px;box-shadow:0 0 35px #000}
+.logo{color:#e31b23;font-weight:900;font-size:28px}.gold{color:#e7c66a}.title{font-size:clamp(38px,6vw,72px);margin:18px 0 10px}.subtitle{font-size:20px;line-height:1.55;color:#dbe5ea}.btn{background:#d71920;color:#fff;border:1px solid #f1c95c;border-radius:12px;padding:15px 28px;font-size:18px;font-weight:800;cursor:pointer;margin-top:20px}.btn:hover{filter:brightness(1.15)}
+.top{display:flex;justify-content:space-between;gap:20px;align-items:center}.timer{border:1px solid #e7c66a;padding:10px 16px;border-radius:12px;color:#ffe39a;font-weight:bold}.mission{max-width:1050px}.mission h1{font-size:42px;margin:8px 0}.mission p{line-height:1.5;color:#dce7ec}.box{background:#0a1d2a;border:1px solid #385565;border-radius:16px;padding:22px;margin-top:20px}
+input{background:#06121d;border:1px solid #9b8040;color:#fff;padding:13px;border-radius:10px;font-size:20px;width:180px;text-align:center}
+.feedback{min-height:30px;margin-top:15px;font-weight:bold}.ok{color:#6ee7a1}.bad{color:#ff7373}
+.options{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}.option{padding:16px;border:1px solid #4c6573;border-radius:12px;background:#0b2331;cursor:pointer}.option.selected{border-color:#e7c66a;background:#3b2b13}.option.correct{border-color:#55d98c;background:#123b2a}.option.wrong{border-color:#e85b5b;background:#421c20}
+.dragarea{display:grid;grid-template-columns:1fr 1fr;gap:20px}.item,.target{padding:14px;border-radius:10px;border:1px dashed #778d98;margin:8px 0;background:#102b39}.item{cursor:grab}.target{min-height:52px}.target.over{border-color:#e7c66a}.codepad{display:grid;grid-template-columns:repeat(3,65px);gap:9px;justify-content:center}.key{padding:16px;border-radius:10px;border:1px solid #587080;background:#102a39;color:white;font-size:20px;cursor:pointer}.display{font-size:28px;letter-spacing:8px;text-align:center;margin:15px}
+.memory{display:grid;grid-template-columns:repeat(4,100px);gap:12px;justify-content:center}.mem{height:100px;background:#142e3c;border:1px solid #d0aa50;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:32px;cursor:pointer}.mem.open{background:#2c2520}.hidden{visibility:hidden}.progress{height:8px;background:#20333e;border-radius:10px;margin:18px 0}.bar{height:100%;background:#d71920;border-radius:10px;width:0}.small{font-size:14px;color:#aebfc7}
+</style>
+</head>
+<body>
+
+<section id="intro" class="screen active">
+<div class="card">
+<div class="logo">✈ EMIRATES</div>
+<div class="title">THE LOST <span class="gold">BOARDING PASS</span></div>
+<p class="subtitle">You are at Dubai International Airport. Your luxury flight on the massive Airbus A380 is boarding in 10 minutes, but you have lost your boarding pass.</p>
+<p class="subtitle">To recover it and board on time, you must solve <b>5 security missions</b> about Emirates. Hurry up!</p>
+<button class="btn" onclick="startGame()">START MISSION</button>
+<p class="small">Team mode • One phone per team • 10-minute countdown</p>
+</div>
+</section>
+
+<section id="game" class="screen">
+<div class="card mission">
+<div class="top"><div class="logo">✈ EMIRATES</div><div class="timer">⏱ <span id="time">10:00</span></div></div>
+<div class="progress"><div id="prog" class="bar"></div></div>
+<div id="m1">
+<h1>🔐 Mission 1 — The Vault of Origins</h1>
+<p>Our travel diary is locked. Enter the <b>year</b> of Emirates' very first flight from Dubai to Karachi and Mumbai.</p>
+<div class="box"><input id="year" maxlength="4" inputmode="numeric" placeholder="YEAR"><br><button class="btn" onclick="check1()">UNLOCK DIARY</button><div id="f1" class="feedback"></div></div>
+</div>
+<div id="m2" style="display:none">
+<h1>📡 Mission 2 — Radar Jammer</h1>
+<p>Our radar is jammed! Select only Emirates' <b>three main international competitors</b> mentioned in our files.</p>
+<div class="options" id="airlines">
+<div class="option" data-correct="1">Qatar Airways</div><div class="option" data-correct="1">Etihad Airways</div><div class="option" data-correct="1">British Airways</div>
+<div class="option">American Airlines</div><div class="option">Ryanair</div><div class="option">Aerolíneas Argentinas</div>
+</div><button class="btn" onclick="check2()">CLEAR RADAR</button><div id="f2" class="feedback"></div>
+</div>
+<div id="m3" style="display:none">
+<h1>🛫 Mission 3 — The Flying Giant</h1>
+<p>Match each A380 measurement with its equivalent scale. Drag each answer onto the correct row.</p>
+<div class="dragarea">
+<div>
+<div class="target" data-answer="whales">Length of the A380</div>
+<div class="target" data-answer="giraffes">Height of the A380</div>
+<div class="target" data-answer="parts">Number of parts</div>
+</div>
+<div>
+<div class="item" draggable="true" data-answer="parts">⚙️ 4 million parts</div>
+<div class="item" draggable="true" data-answer="giraffes">🦒 As tall as 5 giraffes</div>
+<div class="item" draggable="true" data-answer="whales">🐋 As long as 2 blue whales</div>
+</div></div>
+<button class="btn" onclick="check3()">START ENGINES</button><div id="f3" class="feedback"></div>
+</div>
+<div id="m4" style="display:none">
+<h1>👑 Mission 4 — First-Class Secrets</h1>
+<p>Find the digital key by solving both questions.</p>
+<div class="box"><b>1. At what altitude can First Class passengers take a shower in the Shower Spa?</b>
+<div class="options q4a"><div class="option">10,000 feet</div><div class="option" data-correct="1">40,000 feet</div><div class="option">50,000 feet</div></div></div>
+<div class="box"><b>2. Where can First and Business Class passengers have a drink and talk during the flight?</b>
+<div class="options q4b"><div class="option" data-correct="1">In the onboard bar</div><div class="option">In the cockpit</div><div class="option">In the economy cabin</div></div></div>
+<button class="btn" onclick="check4()">FIND THE KEY</button><div id="f4" class="feedback"></div>
+</div>
+<div id="m5" style="display:none">
+<h1>🌍 Mission 5 — The Global Crew</h1>
+<p>Calculate the final security code from Emirates' international crew statistics.</p>
+<div class="box"><p>Countries the crew comes from: <b>150+</b></p><p>Languages they speak: <b>75+</b></p><p class="gold">150 + 75 = ?</p>
+<div class="codepad" id="finalpad"></div><div id="finaldisplay" class="display">___</div>
+<button class="btn" onclick="check5()">OPEN FINAL DOOR</button><div id="f5" class="feedback"></div></div>
+</div>
+</div></section>
+
+<section id="win" class="screen">
+<div class="card" style="text-align:center">
+<div class="logo">✈ EMIRATES</div><h1 class="title">CONGRATULATIONS!</h1>
+<p class="subtitle">You found <b>"El pasaje perdido"</b>.</p><p class="subtitle">You are ready to fly luxury class with Emirates!</p>
+<div style="font-size:70px">🎫 ✈️ 🏆</div>
+<p class="gold" style="font-size:28px">Enjoy your flight!</p>
+<p>Team: <b id="teamOut"></b></p>
+<p>Final code: <b>225</b></p>
+</div></section>
+
+<section id="lose" class="screen"><div class="card" style="text-align:center"><h1>⏰ TIME'S UP!</h1><p class="subtitle">The flight has departed. Try again!</p><button class="btn" onclick="location.reload()">TRY AGAIN</button></div></section>
+
+<script>
+let mission=1, time=600, timer, team="Team";
+function startGame(){team=prompt("Enter your team name:","Team")||"Team";document.getElementById("intro").classList.remove("active");document.getElementById("game").classList.add("active");timer=setInterval(()=>{time--;let m=Math.floor(time/60),s=time%60;document.getElementById("time").textContent=`${m}:${String(s).padStart(2,"0")}`;if(time<=0){clearInterval(timer);document.getElementById("game").classList.remove("active");document.getElementById("lose").classList.add("active")}},1000)}
+function next(n){document.getElementById("m"+mission).style.display="none";mission=n;document.getElementById("m"+n).style.display="block";document.getElementById("prog").style.width=(n-1)*25+"%"}
+function feedback(id,msg,good){let e=document.getElementById(id);e.textContent=msg;e.className="feedback "+(good?"ok":"bad")}
+function check1(){if(document.getElementById("year").value==="1985"){feedback("f1","✓ Diary unlocked! Gate map recovered.",1);setTimeout(()=>next(2),700)}else feedback("f1","✗ Incorrect. Think about the year of Emirates' first flight.",0)}
+document.querySelectorAll("#airlines .option").forEach(x=>x.onclick=()=>x.classList.toggle("selected"));
+function check2(){let a=[...document.querySelectorAll("#airlines .option")],sel=a.filter(x=>x.classList.contains("selected"));if(sel.length===3&&sel.every(x=>x.dataset.correct)){sel.forEach(x=>x.classList.add("correct"));feedback("f2","✓ Radar cleared! Flight path restored.",1);setTimeout(()=>next(3),700)}else{sel.forEach(x=>x.classList.add("wrong"));feedback("f2","✗ Select exactly Qatar Airways, Etihad Airways and British Airways.",0)}}
+let dragged=null;
+document.querySelectorAll(".item").forEach(x=>{x.addEventListener("dragstart",()=>dragged=x);});
+document.querySelectorAll(".target").forEach(t=>{t.addEventListener("dragover",e=>e.preventDefault());t.addEventListener("drop",()=>{if(dragged){t.innerHTML=dragged.innerHTML;t.dataset.placed=dragged.dataset.answer;dragged.classList.add("hidden")}})});
+function check3(){let t=[...document.querySelectorAll(".target")];if(t.every(x=>x.dataset.placed===x.dataset.answer)){feedback("f3","✓ Perfect match! Engines are ready.",1);setTimeout(()=>next(4),700)}else feedback("f3","✗ Some measurements are still wrong. Match all three.",0)}
+document.querySelectorAll(".q4a .option,.q4b .option").forEach(x=>x.onclick=()=>{x.parentElement.querySelectorAll(".option").forEach(y=>y.classList.remove("selected"));x.classList.add("selected")});
+function check4(){let a=document.querySelector(".q4a .selected"),b=document.querySelector(".q4b .selected");if(a&&b&&a.dataset.correct&&b.dataset.correct){feedback("f4","✓ Both answers correct! You found the key.",1);setTimeout(()=>next(5),700)}else feedback("f4","✗ The key remains hidden. Check both answers.",0)}
+let fd="",pad=document.getElementById("finalpad");[1,2,3,4,5,6,7,8,9,"←",0,"OK"].forEach(k=>{let b=document.createElement("button");b.className="key";b.textContent=k;b.onclick=()=>{if(k==="←")fd=fd.slice(0,-1);else if(k==="OK")return;else if(fd.length<3)fd+=k;document.getElementById("finaldisplay").textContent=fd||"___"};pad.appendChild(b)});
+function check5(){if(fd==="225"){clearInterval(timer);document.getElementById("teamOut").textContent=team;document.getElementById("game").classList.remove("active");document.getElementById("win").classList.add("active")}else feedback("f5","✗ Incorrect code. Add the two numbers.",0)}
+</script>
+</body>
+</html>
